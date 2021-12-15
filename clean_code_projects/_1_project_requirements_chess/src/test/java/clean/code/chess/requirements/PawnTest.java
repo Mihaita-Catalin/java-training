@@ -1,5 +1,7 @@
 package clean.code.chess.requirements;
 
+import clean.code.chess.requirements.pieces.Pawn;
+import clean.code.chess.requirements.pieces.attributes.PieceColor;
 import org.junit.Before;
 import org.junit.Test;
 

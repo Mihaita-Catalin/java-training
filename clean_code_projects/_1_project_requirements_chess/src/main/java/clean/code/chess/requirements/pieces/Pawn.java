@@ -1,4 +1,8 @@
-package clean.code.chess.requirements;
+package clean.code.chess.requirements.pieces;
+
+import clean.code.chess.requirements.ChessBoard;
+import clean.code.chess.requirements.MovementType;
+import clean.code.chess.requirements.pieces.attributes.PieceColor;
 
 public class Pawn {
 
@@ -44,7 +48,16 @@ public class Pawn {
     }
 
     public void Move(MovementType movementType, int newX, int newY) {
-        throw new UnsupportedOperationException("Need to implement Pawn.Move()");
+        if (chessBoard.IsLegalBoardPosition(newX, newY)) {
+            if (movementType == MovementType.MOVE) {
+                if (newX == xCoordinate) {
+                    if ((pieceColor == PieceColor.BLACK && newY == yCoordinate - 1) ||
+                            (pieceColor == PieceColor.WHITE && newY == yCoordinate + 1)) {
+                        yCoordinate = newY;
+                    }
+                }
+            }
+        }
     }
 
     @Override

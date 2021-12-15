@@ -1,22 +1,97 @@
 package clean.code.chess.requirements;
 
+import clean.code.chess.requirements.pieces.Pawn;
+import clean.code.chess.requirements.pieces.Piece;
+import clean.code.chess.requirements.pieces.attributes.PieceColor;
+import clean.code.chess.requirements.pieces.attributes.Position;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class ChessBoard {
 
-    public static int MAX_BOARD_WIDTH = 7;
-    public static int MAX_BOARD_HEIGHT = 7;
+    public static final int MAX_BOARD_WIDTH = 7;
+    public static final int MAX_BOARD_HEIGHT = 7;
 
-    private Pawn[][] pieces;
+    private Map<Position, Piece> mapOfPositionAndPiece;
+    private Map<Piece, Position> mapOfPieceAndPosition;
+    private ChessBoardValidator chessBoardValidator;
+
+    private final Pawn[][] pieces;
+    private int nrOfPawns;
 
     public ChessBoard() {
+        this.mapOfPieceAndPosition = new HashMap<>(MAX_BOARD_WIDTH * MAX_BOARD_HEIGHT);
+        this.mapOfPositionAndPiece = new HashMap<>(MAX_BOARD_WIDTH * MAX_BOARD_HEIGHT);
+        this.chessBoardValidator = new ChessBoardValidator();
         pieces = new Pawn[MAX_BOARD_WIDTH][MAX_BOARD_HEIGHT];
+    }
 
+    public void addPieceOnChessBoard(Piece piece, int xCoordinate, int yCoordinate) {
+        if (chessBoardValidator.isValidPieceRow(xCoordinate, piece.getColor())) {
+            piece.setPieceOnChessBoard(this, xCoordinate, yCoordinate);
+        }
+    }
+
+    public void updatePiecePositionOnChessBoard(Piece piece, int xCoordinate, int yCoordinate) {
+        Position newPosition = getNewPiecePosition(xCoordinate, yCoordinate);
+        this.mapOfPieceAndPosition.put(piece, newPosition);
+        this.mapOfPositionAndPiece.put(newPosition, piece);
+    }
+
+    private Position getNewPiecePosition(int xCoordinate, int yCoordinate) {
+        if (this.IsLegalBoardPosition(xCoordinate, yCoordinate)) {
+            return new Position(xCoordinate, yCoordinate);
+        } else {
+            return new Position(-1, -1);
+        }
+    }
+
+    public Position getPosition(Piece piece) {
+        return this.mapOfPieceAndPosition.get(piece);
+    }
+
+    public Piece getPiece(Position position) {
+        return this.mapOfPositionAndPiece.get(position);
     }
 
     public void Add(Pawn pawn, int xCoordinate, int yCoordinate, PieceColor pieceColor) {
-        throw new UnsupportedOperationException("Need to implement ChessBoard.add()");
+        if (IsLegalBoardPosition(xCoordinate, yCoordinate) && nrOfPawns < MAX_BOARD_WIDTH) {
+            pieces[xCoordinate][yCoordinate] = pawn;
+            pawn.setXCoordinate(xCoordinate);
+            pawn.setYCoordinate(yCoordinate);
+            pawn.setChessBoard(this);
+            nrOfPawns++;
+        } else {
+            pawn.setXCoordinate(-1);
+            pawn.setYCoordinate(-1);
+        }
     }
 
     public boolean IsLegalBoardPosition(int xCoordinate, int yCoordinate) {
-        throw new UnsupportedOperationException("Need to implement ChessBoard.IsLegalBoardPosition()");
+        return chessBoardValidator.isValidCoordinates(xCoordinate, yCoordinate) && chessBoardValidator.isFreePosition(xCoordinate, yCoordinate);
+    }
+
+    private class ChessBoardValidator {
+
+        public boolean isFreePosition(int xCoordinate, int yCoordinate) {
+            return getPiece(new Position(xCoordinate, yCoordinate)) == null;
+        }
+
+        public boolean isValidCoordinates(int xCoordinate, int yCoordinate) {
+            return this.isInsideTheTable(xCoordinate, MAX_BOARD_WIDTH) && this.isInsideTheTable(yCoordinate, MAX_BOARD_HEIGHT);
+        }
+
+        public boolean isInsideTheTable(int coordinate, int tableLimit) {
+            return 0 <= coordinate && coordinate < tableLimit;
+        }
+
+        public boolean isValidPieceRow(int xCoordinate, PieceColor color) {
+            if (color == PieceColor.WHITE) {
+                return xCoordinate == 0 || xCoordinate == 1;
+            }
+            return xCoordinate == MAX_BOARD_HEIGHT - 1 || xCoordinate == MAX_BOARD_HEIGHT;
+        }
+
     }
 }
